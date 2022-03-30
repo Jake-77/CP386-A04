@@ -1,0 +1,24 @@
+CC = gcc
+CFLAGS = -Werror -Wall -g -std=gnu99
+LDFLAGS = -lrt
+LDTHREADS = -lpthread
+TARGET = Question1 Question2
+OBJFILES = Question1.o Question2.o
+
+
+all: $(TARGET)
+
+Question1: 180658600_180907350_a04_q1.c
+	$(CC) $(CFLAGS) -o Question1 180658600_180907350_a04_q1.c $(LDFLAGS) $(LDTHREADS)
+
+Question2: 180907350_180658600_a04_q2.c
+	$(CC) $(CFLAGS) -o Question2 180907350_180658600_a04_q2 $(LDFLAGS)
+
+runq1: Question1
+	./Question1 10 5 7 8
+
+runq2: Question2
+	./Question2 1000000
+
+clean:
+	rm -f $(OBJFILES) $(TARGET) *~ 
