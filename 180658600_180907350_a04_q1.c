@@ -58,7 +58,12 @@ void main(int argc, char *argv[]){
             bank.allocation[i][j] = 0;
         }
     }
-    updateNeed(m, n, bank); // initialize need array
+
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            bank.need[i][j] = bank.maximum[i][j] - bank.allocation[i][j];
+        }
+    }
 
     printf("Number of Customers: %d\n", n);
     printf("Currently Available resources: %d ", bank.available[0]);
@@ -146,22 +151,70 @@ void main(int argc, char *argv[]){
             }
 
             if(strncmp(arguments.command, "RQ", 2) == 0){
-                printf("not finished");
-            }
+                int tooMuch = 0;
+                for(int i = 0; i < m; i++){
+                    if(arguments.resources[i] > bank.maximum[arguments.CID][i]){
+                        tooMuch = 1;
+                    }
+                }
+                if(tooMuch == 0){
+                    Banker temp;
+                
+                    for(int i = 0; i < m; i++){
+                        temp.available[i] = bank.available[i];
+                    }
+                    for(int i = 0; i < n; i++){ 
+                        for(int j = 0; j < m; j++){
+                            temp.allocation[i][j] = bank.allocation[i][j];
+                            temp.maximum[i][j] = bank.maximum[i][j];
+                            temp.need[i][j] = bank.need[i][j];
+                        }
+                    }
+                    for(int i = 0; i < m; i++){
+                        temp.allocation[arguments.CID][i] += arguments.resources[i];
+                        temp.available[i] -= arguments.resources[i];
+                        temp.need[arguments.CID][i] -= arguments.resources[i]; 
+                    }
+                    int isSafe;
+                    isSafe = safety(m, n, temp);
+
+                    if(isSafe == 1){
+                        for(int i = 0; i < m; i++){
+                            bank.allocation[arguments.CID][i] += arguments.resources[i];
+                            bank.available[i] -= arguments.resources[i];
+                            bank.need[arguments.CID][i] -= arguments.resources[i];
+                        }
+                        
+                        printf("State is safe, and request is satisfied \n");
+                    }
+                    else{
+                        printf("Request denied \n");
+                    }
+                }
+                else{
+                    printf("Request is greater than max allowed \n");
+                }
+            }   
             else if(strncmp(arguments.command, "RL", 2) == 0){
-                printf("not finished");
+
+                for(int i = 0; i < m; i++){
+                    if(bank.allocation[arguments.CID][i] <= arguments.resources[i]){
+
+                        bank.available[i] += bank.allocation[arguments.CID][i];
+                        bank.allocation[arguments.CID][i] = 0;
+                        bank.need[arguments.CID][i] = bank.maximum[arguments.CID][i];  
+                    }
+                    else{
+
+                        bank.allocation[arguments.CID][i] -= arguments.resources[i];
+                        bank.available[i] += arguments.resources[i];
+                        bank.need[arguments.CID][i] += arguments.resources[i];
+                    }
+                }
+                printf("The resources have been released successfully \n");
             }
         }
     }while(exit != 1);
-}
-
-void updateNeed(int m, int n, Banker b){
-
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++){
-            b.need[i][j] = b.maximum[i][j] - b.allocation[i][j];
-        }
-    }
 }
 
 int safety(int m, int n, Banker b){
