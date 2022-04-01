@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <pthread.h>
+//Just need to take care of invalid inputs
 typedef struct banker //Data structures for banker to keep track of.
 {
     int available[4];
@@ -11,7 +12,7 @@ typedef struct banker //Data structures for banker to keep track of.
     int allocation[5][4];
     int need[5][4];
 
-} Banker; //Created by Jake-77
+} Banker;
 
 typedef struct userArgs
 {
@@ -21,9 +22,24 @@ typedef struct userArgs
 
 } UserArgs;
 
+typedef struct thread
+{
+    pthread_t handle;
+    int rtNum;
+    int numTs;
+    int tid;
+
+} Thread;
+
+int *sequence;
+Banker bank;
+
+void * threadRun(void *t);
+int safety(int m, int n, Banker b);
+
 void main(int argc, char *argv[]){
 
-    Banker bank;
+    //Banker bank;
     bank.maximum[0][0] = 6; //Hardcoded the file input straight into maximum array
     bank.maximum[0][1] = 4;
     bank.maximum[0][2] = 7;
@@ -48,6 +64,8 @@ void main(int argc, char *argv[]){
     int n = 5; //# of customers
     int m = argc - 1; //# of resource types
     int k = 1;
+
+    sequence = malloc(sizeof(int) * n);
 
     for(int i = 0; i < m; i++){  // Initialize available array to # of resources of each type from command line
         bank.available[i] = atoi(argv[k]);
@@ -83,10 +101,7 @@ void main(int argc, char *argv[]){
 
     do {
         printf("Enter Command: ");
-        //scanf("%[^\n]s" , commandInput);
-        //scanf("%[^\n]%*c", commandInput);
         fgets(commandInput, 15, stdin);
-        printf("%s", commandInput);
         exit = 0;
 
         if(strncmp(commandInput, "Status", 6) == 0){
@@ -122,7 +137,25 @@ void main(int argc, char *argv[]){
             }
         }
         else if (strncmp(commandInput, "Run", 3) == 0){
-            printf("not finished");
+
+            int isSafe;
+            isSafe = safety(m, n, bank);
+            printf("Safe Sequence is: ");
+
+            for(int i = 0; i < n; i++){
+                printf("%d ", sequence[i]);
+            }
+            printf("\n");
+            Thread *customers = NULL;
+            customers = (Thread *) malloc(sizeof(Thread) * n);
+            for(int i = 0; i < n; i++){
+                customers[i].tid = sequence[i];
+                customers[i].rtNum = m;
+                customers[i].numTs = n;
+                pthread_create(&customers[i].handle, NULL, threadRun, &customers[i]);
+                pthread_join(customers[i].handle, NULL);
+            }
+            
         }
         else if(strncmp(commandInput, "Exit", 4) == 0){
             exit = 1;
@@ -215,6 +248,48 @@ void main(int argc, char *argv[]){
             }
         }
     }while(exit != 1);
+
+    free(sequence);
+}
+
+void * threadRun(void *t){
+
+    printf("--> Customer/Tread %d\n", ((Thread*)t)->tid);
+    printf("Allocated resources: ");
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        printf("%d ", bank.allocation[((Thread*)t)->tid][i]);
+    }
+    printf("\n");
+    printf("Needed: ");
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        printf("%d ", bank.need[((Thread*)t)->tid][i]);
+    }
+    printf("\n");
+    printf("Available: ");
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        printf("%d ", bank.available[i]);
+    }
+    printf("\n");
+    printf("Thread has started");
+    printf("\n");
+
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        bank.allocation[((Thread*)t)->tid][i] += bank.need[((Thread*)t)->tid][i];
+        bank.available[i] -= bank.need[((Thread*)t)->tid][i];
+        bank.need[((Thread*)t)->tid][i] = 0; 
+    }
+    printf("Thread has finished\n");
+    printf("Thread is releasing resources\n");
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        bank.available[i] += bank.allocation[((Thread*)t)->tid][i];
+        bank.allocation[((Thread*)t)->tid][i] = 0;
+        //bank.need[((Thread*)t)->tid][i] = bank.maximum[((Thread*)t)->tid][i]; 
+    }
+    printf("New Available: ");
+    for(int i = 0; i < ((Thread*)t)->rtNum; i++){
+        printf("%d ", bank.available[i]);
+    }
+    printf("\n");
 }
 
 int safety(int m, int n, Banker b){
@@ -247,6 +322,7 @@ int safety(int m, int n, Banker b){
                         Work[k] += b.allocation[i][k];
                     }
                     Finish[i] = 1;
+                    sequence[c] = i;
                     c += 1;
                     safe = 1;
                 }
