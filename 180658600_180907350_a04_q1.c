@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct banker //Data structures for banker to keep track of.
 {
@@ -9,7 +10,16 @@ typedef struct banker //Data structures for banker to keep track of.
     int maximum[5][4];
     int allocation[5][4];
     int need[5][4];
+
 } Banker; //Created by Jake-77
+
+typedef struct userArgs
+{
+    char command[10];
+    int CID;
+    int resources[4];
+
+} UserArgs;
 
 void main(int argc, char *argv[]){
 
@@ -63,6 +73,86 @@ void main(int argc, char *argv[]){
         }
         printf("\n");
     }
+    char commandInput[15] = { '\0' };
+    int exit;
+
+    do {
+        printf("Enter Command: ");
+        //scanf("%[^\n]s" , commandInput);
+        //scanf("%[^\n]%*c", commandInput);
+        fgets(commandInput, 15, stdin);
+        printf("%s", commandInput);
+        exit = 0;
+
+        if(strncmp(commandInput, "Status", 6) == 0){
+
+            printf("Available Resources: \n");
+            for(int i = 0; i < m; i++){
+                printf("%d ", bank.available[i]);
+            }
+            printf("\n");
+            printf("Maximum Resources: ");
+            printf("\n");
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < m; j++){
+                    printf("%d ", bank.maximum[i][j]);
+                }
+                printf("\n");    
+            }
+            printf("Allocated Resources: ");
+            printf("\n");
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < m; j++){
+                    printf("%d ", bank.allocation[i][j]);
+                }
+                printf("\n");
+            }
+            printf("Need Resources: ");
+            printf("\n");
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < m; j++){
+                    printf("%d ", bank.need[i][j]);
+                }
+                printf("\n");
+            }
+        }
+        else if (strncmp(commandInput, "Run", 3) == 0){
+            printf("not finished");
+        }
+        else if(strncmp(commandInput, "Exit", 4) == 0){
+            exit = 1;
+        }
+        else{// if an error in here need to say wrong command
+            char *token;
+            token = strtok(commandInput, " ");
+            int j = 0;
+            int k = 0;
+            UserArgs arguments;
+
+            while(token != NULL){
+
+                if(j == 0){
+                    strcpy(arguments.command, token);
+                }
+                else if(j == 1){
+                    arguments.CID = atoi(token);
+                }
+                else{
+                    arguments.resources[k] = atoi(token);
+                    k += 1;
+                }
+                j += 1;
+                token = strtok(NULL, " ");
+            }
+
+            if(strncmp(arguments.command, "RQ", 2) == 0){
+                printf("not finished");
+            }
+            else if(strncmp(arguments.command, "RL", 2) == 0){
+                printf("not finished");
+            }
+        }
+    }while(exit != 1);
 }
 
 void updateNeed(int m, int n, Banker b){
