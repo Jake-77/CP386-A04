@@ -77,7 +77,7 @@ void main(int argc, char *argv[]){
         }
     }
 
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++){ //Initialize need array with the amount of resources needed to complete
         for(int j = 0; j < m; j++){
             bank.need[i][j] = bank.maximum[i][j] - bank.allocation[i][j];
         }
@@ -101,7 +101,7 @@ void main(int argc, char *argv[]){
 
     do {
         printf("Enter Command: ");
-        fgets(commandInput, 15, stdin);
+        fgets(commandInput, 15, stdin); //get user input for commands
         exit = 0;
 
         if(strncmp(commandInput, "Status", 6) == 0){
@@ -246,6 +246,9 @@ void main(int argc, char *argv[]){
                 }
                 printf("The resources have been released successfully \n");
             }
+            else{
+                printf("Invalid input, use one of RQ, RL, Status, Run, Exit\n");
+            }
         }
     }while(exit != 1);
 
@@ -283,7 +286,7 @@ void * threadRun(void *t){
     for(int i = 0; i < ((Thread*)t)->rtNum; i++){
         bank.available[i] += bank.allocation[((Thread*)t)->tid][i];
         bank.allocation[((Thread*)t)->tid][i] = 0;
-        //bank.need[((Thread*)t)->tid][i] = bank.maximum[((Thread*)t)->tid][i]; 
+        bank.need[((Thread*)t)->tid][i] = bank.maximum[((Thread*)t)->tid][i]; 
     }
     printf("New Available: ");
     for(int i = 0; i < ((Thread*)t)->rtNum; i++){
