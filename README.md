@@ -31,8 +31,21 @@ In the command line: 10 5 7 8 (included in the makefile call for q1)
     Ensures system is in safe state and calculate a safe execution sequence in current state.
 
 ## Use example
-   ![alt text](screenshots/q1.png)
+   ![alt text](q1_exampleimg1.png)
+   !![alt text](q1_exampleimg2.png)
 
+# Contigious Memory Allocation Using Best-Fit Algorithm Simulation
+
+## Creator - maroyanp
+## Features
+Essentially is a simulator that uses the Best-Fit algorithm for contiguous memory allocation of size MAX where addresses may range from 0 ... MAX − 1.
+
+## The program has three basic commands:
+### 1) Request for a contiguous block of memory (RQ)
+### 2) Release of a contiguous block of memomry (RL)
+### 3) Report the regions of free and allocated memomry (Status)
+
+## Functions
 
 ## void uppercase(char *str);
     Is used to uppercase each letter that a user inputs
@@ -51,13 +64,22 @@ In the command line: 10 5 7 8 (included in the makefile call for q1)
 
 ## void printTable(int *table, const int MAX);
     was used for testing purposes to see if the bestfit was working correcty.
-# ------------------------------------------
+
+## Use example
+   ![alt text](q2.png)
+   
+## Makefile
+To use the make file provided (where q1 is the bankers algorithm and q2 is contigious memory allocation), make all (to run both), make runq1, make runq2
+![alt text](make.png)
+   
 
 # About Developers
-# ------------------------------------------
 
 ## Jake Lambkin:
-    Third year stuyding at wilfrid laurier university
+    Third year studying at wilfrid laurier university
 
 ## Maroyan Putros
-    Third year stuyding at wilfrid laurier university
+    Third year studying at wilfrid laurier university
+
+# Licencensing
+    Open Source.
